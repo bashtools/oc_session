@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directory containing session files
-SESSION_DIR="$HOME/.local/share/opencode/storage/session/global"
+SESSION_DIR="$HOME/.local/share/opencode/storage/session/"
 
 # Accumulate output
 output=""
@@ -27,26 +27,24 @@ convert_time() {
 output+="| id | directory | title | time |\n"
 output+="|----|-----------|-------|------|\n"
 
-# Loop through each JSON file in the directory
-for file in "$SESSION_DIR"/*.json; do
-    if [[ -f "$file" ]]; then
-        # Extract fields using jq
-        id=$(jq -r '.id // empty' "$file")
-        directory=$(jq -r '.directory // empty' "$file")
-        title=$(jq -r '.title // empty' "$file")
-        created_time=$(jq -r '.time.created // empty' "$file")
+# Loop through each JSON file in the directory and subdirectories
+while read -r file; do
+    # Extract fields using jq
+    id=$(jq -r '.id // empty' "$file")
+    directory=$(jq -r '.directory // empty' "$file")
+    title=$(jq -r '.title // empty' "$file")
+    created_time=$(jq -r '.time.created // empty' "$file")
 
-        # Convert time if it's a number
-        if [[ "$created_time" =~ ^[0-9]+$ ]]; then
-            time_formatted=$(convert_time "$created_time")
-        else
-            time_formatted="$created_time"
-        fi
-
-        # Accumulate table row
-        output+="| $id | $directory | $title | $time_formatted |\n"
+    # Convert time if it's a number
+    if [[ "$created_time" =~ ^[0-9]+$ ]]; then
+        time_formatted=$(convert_time "$created_time")
+    else
+        time_formatted="$created_time"
     fi
-done
+
+    # Accumulate table row
+    output+="| $id | $directory | $title | $time_formatted |\n"
+done < <(find "$SESSION_DIR" -name "*.json" -type f)
 
 # Get terminal width
 width=$(tput cols || echo 80)
