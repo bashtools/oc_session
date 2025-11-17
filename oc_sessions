@@ -27,24 +27,14 @@ convert_time() {
 output+="| id | directory | title | time |\n"
 output+="|----|-----------|-------|------|\n"
 
-# Loop through each JSON file in the directory and subdirectories
-while read -r file; do
-    # Extract fields using jq
-    id=$(jq -r '.id // empty' "$file")
-    directory=$(jq -r '.directory // empty' "$file")
-    title=$(jq -r '.title // empty' "$file")
-    created_time=$(jq -r '.time.created // empty' "$file")
+# Find all JSON files
+files=()
+while IFS= read -r -d '' file; do
+    files+=("$file")
+done < <(find "$SESSION_DIR" -name "*.json" -type f -print0)
 
-    # Convert time if it's a number
-    if [[ "$created_time" =~ ^[0-9]+$ ]]; then
-        time_formatted=$(convert_time "$created_time")
-    else
-        time_formatted="$created_time"
-    fi
-
-    # Accumulate table row
-    output+="| $id | $directory | $title | $time_formatted |\n"
-done < <(find "$SESSION_DIR" -name "*.json" -type f)
+# Accumulate sorted table rows using jq
+output+=$(jq -r -s --arg home "$HOME" 'map(select(.time.created)) | sort_by(.time.created)[] | "| \(.id) | \(.directory | if startswith($home) then "~" + .[$home | length:] else . end) | \(.title) | \((.time.created / 1000) | strftime("%Y/%m/%d %H:%M")) |"' "${files[@]}")
 
 # Get terminal width
 width=$(tput cols || echo 80)
