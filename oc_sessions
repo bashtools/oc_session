@@ -49,8 +49,7 @@ for file in "$SESSION_DIR"/*.json; do
 done
 
 # Get terminal width
-width=$(tput cols 2>/dev/null || echo 80)
-# width=$(tput cols || echo 80)
+width=$(tput cols || echo 80)
 
 # Output through glow if available
 if command -v glow >/dev/null 2>&1; then
