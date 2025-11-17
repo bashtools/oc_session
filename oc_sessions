@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Directory containing session files
+SESSION_DIR="$HOME/.local/share/opencode/storage/session/global"
+
+# Determine date command
+if date --version 2>/dev/null | grep -q GNU; then
+    date_cmd="date"
+elif command -v gdate >/dev/null 2>&1; then
+    date_cmd="gdate"
+else
+    echo "GNU date is not installed. Date will be incorrect." >&2
+    date_cmd="date"
+fi
+
+# Function to convert Unix epoch milliseconds to YYYY/MM/DD HH:MM
+convert_time() {
+    local epoch_ms=$1
+    local epoch_s=$((epoch_ms / 1000))
+    $date_cmd -d "@$epoch_s" +"%Y/%m/%d %H:%M" 2>/dev/null || echo "Invalid time"
+}
+
+# Output markdown table header
+echo "| id | directory | title | time |"
+echo "|----|-----------|-------|------|"
+
+# Loop through each JSON file in the directory
+for file in "$SESSION_DIR"/*.json; do
+    if [[ -f "$file" ]]; then
+        # Extract fields using jq
+        id=$(jq -r '.id // empty' "$file")
+        directory=$(jq -r '.directory // empty' "$file")
+        title=$(jq -r '.title // empty' "$file")
+        created_time=$(jq -r '.time.created // empty' "$file")
+
+        # Convert time if it's a number
+        if [[ "$created_time" =~ ^[0-9]+$ ]]; then
+            time_formatted=$(convert_time "$created_time")
+        else
+            time_formatted="$created_time"
+        fi
+
+        # Output table row
+        echo "| $id | $directory | $title | $time_formatted |"
+    fi
+done
