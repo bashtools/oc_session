@@ -27,4 +27,4 @@ This will output a markdown table like:
 Feel free to submit issues or pull requests for improvements.
 
 ## License
-[Specify license if applicable]
+MIT
