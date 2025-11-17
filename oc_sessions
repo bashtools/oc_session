@@ -3,6 +3,9 @@
 # Directory containing session files
 SESSION_DIR="$HOME/.local/share/opencode/storage/session/global"
 
+# Accumulate output
+output=""
+
 # Determine date command
 if date --version 2>/dev/null | grep -q GNU; then
     date_cmd="date"
@@ -20,9 +23,9 @@ convert_time() {
     $date_cmd -d "@$epoch_s" +"%Y/%m/%d %H:%M" 2>/dev/null || echo "Invalid time"
 }
 
-# Output markdown table header
-echo "| id | directory | title | time |"
-echo "|----|-----------|-------|------|"
+# Accumulate markdown table header
+output+="| id | directory | title | time |\n"
+output+="|----|-----------|-------|------|\n"
 
 # Loop through each JSON file in the directory
 for file in "$SESSION_DIR"/*.json; do
@@ -40,7 +43,15 @@ for file in "$SESSION_DIR"/*.json; do
             time_formatted="$created_time"
         fi
 
-        # Output table row
-        echo "| $id | $directory | $title | $time_formatted |"
+        # Accumulate table row
+        output+="| $id | $directory | $title | $time_formatted |\n"
     fi
 done
+
+# Output through glow if available
+if command -v glow >/dev/null 2>&1; then
+    echo -e "$output" | glow -w "${COLUMNS:-80}"
+else
+    echo "glow is not installed. Install it for better formatting." >&2
+    echo -e "$output"
+fi
