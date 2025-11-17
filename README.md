@@ -7,9 +7,10 @@ timestamp), and outputs a formatted markdown table for easy viewing of past
 sessions.
 
 ## Installation
-1. Ensure jq and glow are installed (`brew install jq glow` on macOS or `apt
+1. Clone the repository: `git clone https://github.com/bashtools/oc_session`
+2. Ensure jq and glow are installed (`brew install jq glow` on macOS or `apt
    install jq` and `snap install glow` on Ubuntu).
-2. Run `make install` to copy the script to `~/.local/bin`, or place it manually in your PATH.
+3. Run `make` to copy the script to `~/.local/bin`, or place it manually in your PATH.
 
 ## Usage
 Run the script to generate a table of sessions:
