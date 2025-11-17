@@ -48,9 +48,13 @@ for file in "$SESSION_DIR"/*.json; do
     fi
 done
 
+# Get terminal width
+width=$(tput cols 2>/dev/null || echo 80)
+# width=$(tput cols || echo 80)
+
 # Output through glow if available
 if command -v glow >/dev/null 2>&1; then
-    echo -e "$output" | glow -w "${COLUMNS:-80}"
+    echo -e "$output" | glow -w "$width"
 else
     echo "glow is not installed. Install it for better formatting." >&2
     echo -e "$output"
