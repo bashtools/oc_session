@@ -6,6 +6,9 @@ extracts key metadata (session ID, working directory, title, and creation
 timestamp), and outputs a formatted markdown table for easy viewing of past
 sessions.
 
+Note: There is also a more feature rich version written in Go available at
+[github.com/mclarkson/ocs](https://github.com/mclarkson/ocs).
+
 ## Installation
 1. Clone the repository: `git clone https://github.com/bashtools/oc_session`
 2. Ensure jq and glow are installed (`brew install jq glow` on macOS or `apt
